@@ -2,6 +2,8 @@
 
 ## Revisión de acceso público
 
+**CI remoto confirmado:** [Validate and deploy #1](https://github.com/andresfecortes8820-sys/cne-observatorio-publico/actions/runs/43294014462), commit `d85b6cfe92c4f1197f78b473fe3555036e6af064`. Backend y frontend finalizaron en success: migraciones reversibles PostgreSQL, suite de pruebas, compilación Next.js, construcción de ambas imágenes Docker y validación de Compose. El job de despliegue quedó skipped porque `DEPLOY_ENABLED` y la infraestructura no están configurados. Esto valida construcción y pruebas; no demuestra una aplicación publicada ni una sincronización en vivo.
+
 - **35 pruebas aprobadas** en Windows/Python 3.13, incluidas lectura anónima, separación de cuentas privadas, ausencia de tokens/scopes, retiro con invalidación de caché, historial, límites de consulta, paginación estable y consultas SQL acotadas.
 - Compilación de producción Next.js aprobada para `/`, `/admin` y proxy de servidor `/api/[...path]`.
 - Migraciones 001/002: subida, reversión y nueva subida comprobadas en SQLite.
@@ -35,3 +37,4 @@ Una advertencia de deprecación proviene del uso de httpx por Starlette TestClie
 La primera compilación falló al crear el directorio standalone por permisos de Windows; la compilación posterior con acceso autorizado terminó correctamente. El bucle asíncrono de Windows requirió ejecución fuera del sandbox para crear sus sockets internos. Las API sociales permanecieron simuladas durante esas pruebas.
 
 No se declara esta entrega lista para producción. Ver los límites del MVP en el README y la matriz de capacidades antes de operar con datos reales.
+
