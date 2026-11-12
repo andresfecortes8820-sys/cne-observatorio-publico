@@ -1,5 +1,11 @@
 # CNE · Observatorio público de redes sociales
 
+## Modalidad activa: solo GitHub, sin alojamiento contratado
+
+Por decisión del usuario, la publicación activa utiliza **GitHub Pages + GitHub Actions**. El dashboard público consume capturas JSON; Python se ejecuta en Actions. La administración privada se realiza con permisos del repositorio. Render está pausado. Las instrucciones Docker de abajo corresponden a la alternativa con backend permanente.
+
+**[Guía de operación gratuita y acceso a datos reales](docs/GITHUB_ONLY.md).** El workflow intenta actualizar cada 15 minutos según el intervalo de cuenta y las cuotas. No ofrece tiempo real continuo. Aún no hay cuentas ni credenciales sociales configuradas; no se incluyen datos ficticios.
+
 Dashboard ciudadano sin registro y administración privada. Identidad visual con el logo del CNE proporcionado por el usuario y la bandera de Colombia.
 
 **Repositorio:** https://github.com/andresfecortes8820-sys/cne-observatorio-publico

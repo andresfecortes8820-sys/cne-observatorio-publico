@@ -1,0 +1,9 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {querySnapshot} from '../lib/snapshot.mjs';
+const snapshot={version:1,accounts:[{id:1,account:'TEST ONLY',platform:'x',followers:null}],posts:[{id:1,account_id:1,platform:'x',text:'Elecciones',format:'text',published_at:'2026-11-12T04:59:59Z',captured_at:'2026-11-12T12:00:00Z',interactions:null,history:[]},{id:2,account_id:1,platform:'x',text:'Participación',format:'video',published_at:'2026-11-12T05:00:00Z',captured_at:'2026-11-12T12:00:00Z',interactions:4,history:[{captured_at:'2026-11-12T12:00:00Z',metrics:{likes:4}}]}],sources:[],truncated:false};
+test('Bogotá midnight excludes previous local day',()=>{const data=querySnapshot(snapshot,'/dashboard?start=2026-11-12&end=2026-11-12');assert.equal(data.posts,1);assert.equal(data.interactions,4)});
+test('unknown metrics stay unknown',()=>{const data=querySnapshot(snapshot,'/dashboard?start=2026-11-11&end=2026-11-11');assert.equal(data.posts,1);assert.equal(data.interactions,null)});
+test('filters and pagination combine',()=>{const data=querySnapshot(snapshot,'/posts?start=2026-11-11&end=2026-11-12&page_size=1');assert.equal(data.items[0].id,2);assert.equal(data.has_more,true);assert.equal(querySnapshot(snapshot,'/posts?start=2026-11-11&end=2026-11-12&format=text').items.length,1)});
+test('history and invalid bounds',()=>{assert.equal(querySnapshot(snapshot,'/posts/2').history.length,1);assert.throws(()=>querySnapshot(snapshot,'/posts?page_size=1000'));assert.throws(()=>querySnapshot(snapshot,'/dashboard?start=2026-11-12&end=2026-11-11'))});
+test('empty snapshot reports no authorized data',()=>{const s=querySnapshot({...snapshot,posts:[],accounts:[]},'/dashboard');assert.equal(s.coverage.status,'no_authorized_data');assert.equal(s.interactions,null);assert.equal(s.last_capture,null)});

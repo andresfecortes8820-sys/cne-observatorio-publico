@@ -7,3 +7,6 @@ __pycache__/
 *.db
 *.tsbuildinfo
 *.log
+frontend/out/
+frontend/.pages-api-excluded/
+frontend/public/data/

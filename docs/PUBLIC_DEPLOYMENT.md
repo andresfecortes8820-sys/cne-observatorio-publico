@@ -1,5 +1,9 @@
 # Publicación en internet y estado verificable
 
+## Decisión vigente: solo GitHub
+
+Se eligió GitHub Pages + Actions para evitar contratar alojamiento. Ver `GITHUB_ONLY.md` para la arquitectura activa, sus límites y configuración de datos reales. Render está pausado. La documentación de servidor Linux de abajo se conserva como alternativa futura y no describe un servicio contratado.
+
 ## Repositorio principal
 
 Proyecto nuevo: https://github.com/andresfecortes8820-sys/cne-observatorio-publico. El proyecto previo `CNE` no se modifica. El código se organiza desde la raíz de este repositorio; `.github/workflows/ci-deploy.yml` debe permanecer en la raíz, no dentro de una subcarpeta.

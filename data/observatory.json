@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "generated_at": null,
+  "accounts": [],
+  "posts": [],
+  "sources": [
+    {"platform":"facebook","status":"not_configured"},
+    {"platform":"instagram","status":"not_configured"},
+    {"platform":"x","status":"not_configured"},
+    {"platform":"tiktok","status":"not_configured"}
+  ],
+  "truncated": false
+}

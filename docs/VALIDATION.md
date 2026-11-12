@@ -1,5 +1,14 @@
 # Validación de la entrega
 
+## Revisión GitHub Pages
+
+- 41 pruebas Python aprobadas, incluidas aprobación explícita, ausencia de credenciales, saneamiento de métricas/URLs, retirada de cuentas y cuotas del recolector.
+- 5 pruebas Node aprobadas: zona horaria Bogotá, métricas desconocidas, filtros, paginación e históricos.
+- Exportación estática de `/` y `/admin/` compilada correctamente.
+- PostCSS fijado en 8.5.32; `npm audit` no reportó vulnerabilidades tras la actualización.
+- GitHub Pages habilitado con GitHub Actions. Render pausado por la decisión de no usar servicios facturables.
+- Sin credenciales de redes sociales: no se declara validación de captura en vivo ni actualización continua en tiempo real.
+
 ## Revisión de acceso público
 
 **CI remoto confirmado:** [Validate and deploy #1](https://github.com/andresfecortes8820-sys/cne-observatorio-publico/actions/runs/43294014462), commit `d85b6cfe92c4f1197f78b473fe3555036e6af064`. Backend y frontend finalizaron en success: migraciones reversibles PostgreSQL, suite de pruebas, compilación Next.js, construcción de ambas imágenes Docker y validación de Compose. El job de despliegue quedó skipped porque `DEPLOY_ENABLED` y la infraestructura no están configurados. Esto valida construcción y pruebas; no demuestra una aplicación publicada ni una sincronización en vivo.

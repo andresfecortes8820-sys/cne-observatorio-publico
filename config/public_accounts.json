@@ -1,0 +1,4 @@
+{
+  "accounts": [],
+  "note": "Agrega solo cuentas cuya consulta API y publicación estén autorizadas. Consulta docs/GITHUB_ONLY.md. No incluyas tokens aquí."
+}
