@@ -15,6 +15,7 @@ os.environ.setdefault('JWT_SECRET',secrets.token_urlsafe(48))
 os.environ.setdefault('ADMIN_PASSWORD',secrets.token_urlsafe(32))
 os.environ.setdefault('TOKEN_KEY',__import__('base64').urlsafe_b64encode(secrets.token_bytes(32)).decode())
 from app.connectors import connector,ConnectorError
+from app.listening import listening_connector
 
 PLATFORMS={'facebook':('FACEBOOK_ACCESS_TOKEN','graph.facebook.com'),'instagram':('INSTAGRAM_ACCESS_TOKEN','graph.facebook.com'),'x':('X_ACCESS_TOKEN','api.x.com'),'tiktok':('TIKTOK_ACCESS_TOKEN','open.tiktokapis.com')}
 COUNTERS={'likes','reactions','comments','shares','reposts','quotes','views'}
@@ -64,7 +65,7 @@ def public_watchlist(config):
         if not url:raise ValueError('invalid_watchlist_url')
         if (platform,url) in seen:continue
         seen.add((platform,url))
-        result.append({'platform':platform,'name':str(item.get('name',platform))[:180],'handle':str(item['handle'])[:120] if item.get('handle') else None,'profile_url':url,'access_mode':'public_interest','api_status':'api_access_pending','verification':'provided_by_user'})
+        result.append({'platform':platform,'name':str(item.get('name',platform))[:180],'handle':str(item['handle'])[:120] if item.get('handle') else None,'profile_url':url,'access_mode':'owned_pending_authorization' if item.get('ownership')=='team_managed' else 'public_interest','api_status':'api_access_pending','verification':'provided_by_user'})
     return result[:200]
 
 async def collect(config,previous,enabled=None,make_connector=connector):
@@ -119,11 +120,56 @@ async def collect(config,previous,enabled=None,make_connector=connector):
     data=sorted(existing.values(),key=lambda p:(p['published_at'],p['id']),reverse=True)
     return {'version':1,'generated_at':captured,'accounts':accounts,'watchlist':watchlist,'posts':data[:MAX_POSTS],'sources':sources,'truncated':limited or len(data)>MAX_POSTS}
 
+async def collect_opinions(config,snapshot,previous,make_connector=listening_connector):
+    accounts=approved_accounts(config);allowed={a['id'] for a in accounts}
+    cutoff=datetime.now(timezone.utc)-timedelta(days=90)
+    existing={o['id']:o for o in previous.get('opinions',[]) if o['account_id'] in allowed and iso_date(o['published_at'])>=cutoff}
+    enabled=os.getenv('LISTENING_SYNC_ENABLED','').lower()=='true';statuses=[]
+    prior_statuses={s['platform']:s for s in previous.get('opinion_sources',[])}
+    for p in PLATFORMS:
+        account=next((a for a in accounts if a['platform']==p),None)
+        status={'platform':p,'status':'api_access_pending','last_attempt':stamp()}
+        if not account:statuses.append(status);continue
+        token=os.getenv(PLATFORMS[p][0])
+        if not enabled:status['status']='not_enabled'
+        elif not token:status['status']='missing_credentials'
+        elif p=='tiktok':status['status']='tiktok_comments_access_required'
+        elif p in ('facebook','instagram') and os.getenv('META_COMMENTS_VALIDATED','').lower()!='true':status['status']='comment_contract_pending_validation'
+        else:
+            prior=prior_statuses.get(p,{})
+            if prior.get('retry_at') and iso_date(prior['retry_at'])>datetime.now(timezone.utc) or prior.get('last_attempt') and iso_date(prior['last_attempt'])+timedelta(minutes=account['interval_minutes'])>datetime.now(timezone.utc):
+                statuses.append(prior);continue
+            parents=[post for post in snapshot['posts'] if post['account_id']==account['id']][:2]
+            if not parents:status['status']='no_parent_posts';statuses.append(status);continue
+            adapter=make_connector(p,token)
+            try:
+                partial=False
+                for parent in parents:
+                    batch=await adapter.read(account['external_id'],parent)
+                    source=public_source(batch.source,p);partial|=batch.has_more
+                    for row in batch.items:
+                        if row['published_at']<cutoff:continue
+                        id=identity('opinion:'+p+':'+row['external_id'])
+                        existing[id]={'id':id,'platform':p,'account_id':account['id'],'account':account['account'],'external_id':row['external_id'],'parent_external_id':row['parent_external_id'],'kind':row['kind'],'text':row['text'][:10000],'published_at':row['published_at'].astimezone(timezone.utc).isoformat(),'captured_at':stamp(),'url':original_url(row['url'],p),'source':source,'sentiment':'indeterminado','sentiment_method':None}
+                status['status']='partial' if partial else 'available'
+            except ConnectorError as e:
+                status['status']=e.code
+                if e.retry_after:status['retry_at']=(datetime.now(timezone.utc)+timedelta(seconds=e.retry_after)).isoformat()
+            except Exception:status['status']='collection_error'
+            finally:await adapter.close()
+        statuses.append(status)
+    opinions=sorted(existing.values(),key=lambda o:(o['published_at'],o['id']),reverse=True)
+    return {'opinions':opinions[:5000],'opinion_sources':statuses,'opinions_truncated':len(opinions)>5000}
+
+def iso_date(value):
+    return datetime.fromisoformat(value.replace('Z','+00:00'))
+
 def main():
     config=json.loads((ROOT/'config/public_accounts.json').read_text(encoding='utf-8'))
     target=ROOT/'data/observatory.json'
     previous=json.loads(target.read_text(encoding='utf-8')) if target.exists() else {}
     result=asyncio.run(collect(config,previous))
+    result.update(asyncio.run(collect_opinions(config,result,previous)))
     target.parent.mkdir(exist_ok=True)
     target.write_text(json.dumps(result,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8')
     print('Captura pública procesada: '+str(len(result['posts']))+' publicaciones. No se imprimen credenciales.')

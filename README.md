@@ -2,6 +2,8 @@
 
 ## Modalidad activa: solo GitHub, sin alojamiento contratado
 
+El objetivo principal confirmado es **conocer lo que la gente comenta y responde en las cuatro cuentas que administra el equipo del CNE**. La vista inicial “Lo que opina la gente” separa textos de la audiencia y actividad institucional. Ver [escucha de la audiencia y permisos pendientes](docs/AUDIENCE_LISTENING.md). Aún faltan credenciales API; no se han recopilado comentarios reales ni calculado sentimiento.
+
 Por decisión del usuario, la publicación activa utiliza **GitHub Pages + GitHub Actions**. El dashboard público consume capturas JSON; Python se ejecuta en Actions. La administración privada se realiza con permisos del repositorio. Render está pausado. Las instrucciones Docker de abajo corresponden a la alternativa con backend permanente.
 
 **[Guía de operación gratuita y acceso a datos reales](docs/GITHUB_ONLY.md).** El workflow intenta actualizar cada 15 minutos según el intervalo de cuenta y las cuotas. No ofrece tiempo real continuo. Aún no hay cuentas ni credenciales sociales configuradas; no se incluyen datos ficticios.

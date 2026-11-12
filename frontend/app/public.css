@@ -7,3 +7,5 @@
 
 
 .source-status-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:0 23px 23px}.source-status-grid article{border:1px solid var(--line);border-radius:7px;padding:16px;display:flex;flex-direction:column;gap:9px}.source-status-grid b{font-size:12px}.source-status-grid span{font-size:10px;color:var(--muted);line-height:1.6}.source-status-grid small{font-size:8px;line-height:1.6}@media(max-width:900px){.source-status-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:450px){.source-status-grid{grid-template-columns:1fr}}
+
+.opinion-list article{padding:20px 23px;border-top:1px solid var(--line)}.opinion-list article>div{display:flex;gap:12px;align-items:center}.opinion-list blockquote{margin:15px 0;font-size:13px;line-height:1.9;color:var(--text);white-space:pre-wrap;overflow-wrap:anywhere}.opinion-list article>a{display:flex;align-items:center;gap:6px;margin-top:12px;font-size:10px}.word-list{padding:10px 23px 25px;display:flex;flex-direction:column;gap:8px}.word-list button{justify-content:space-between;padding:10px;border-bottom:1px solid var(--line);font-size:12px}.word-list b{color:var(--blue)}

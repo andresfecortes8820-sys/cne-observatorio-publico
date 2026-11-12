@@ -19,6 +19,13 @@ export function querySnapshot(snapshot,path,now=new Date()){
  const all=snapshot.posts.filter(matches).sort((a,b)=>b.published_at.localeCompare(a.published_at)||b.id-a.id);
  const filtered=all.filter(p=>day(p.published_at)>=start&&day(p.published_at)<=end);
  if(url.pathname==='/accounts')return {items:snapshot.accounts,limit:200};
+ if(url.pathname==='/opinions'){
+  const words=new Map(),networks=new Map();const stop=new Set('para como pero porque esta este esto desde hasta sobre entre donde cuando tener tiene hacer hace ellos ellas nosotros ustedes una unas unos los las del que por con sin son hay mas muy sus ese esa eso aqui alla todo todos toda todas cne colombia https http www com'.split(' '));
+  const texts=(snapshot.opinions||[]).filter(o=>allowed.has(o.account_id)&&day(o.published_at)>=start&&day(o.published_at)<=end&&(!q.get('keyword')||o.text.toLocaleLowerCase('es').includes(q.get('keyword').toLocaleLowerCase('es')))).sort((a,b)=>b.published_at.localeCompare(a.published_at)||b.id-a.id);
+  for(const o of texts){networks.set(o.platform,(networks.get(o.platform)||0)+1);for(const word of new Set(o.text.toLocaleLowerCase('es').match(/[a-záéíóúüñ]{4,}/g)||[])){if(!stop.has(word))words.set(word,(words.get(word)||0)+1)}}
+  const page=Number(q.get('page')||1);if(!Number.isInteger(page)||page<1||page>200)throw new Error('Página inválida');
+  return {items:texts.slice((page-1)*25,page*25),total:texts.length,page,has_more:page*25<texts.length,platforms:[...networks].map(([platform,count])=>({platform,count})),words:[...words].map(([word,count])=>({word,count})).sort((a,b)=>b.count-a.count||a.word.localeCompare(b.word)).slice(0,15),source_status:snapshot.opinion_sources||[],truncated:!!snapshot.opinions_truncated};
+ }
  if(url.pathname==='/dashboard'){
   const duration=Math.round((+new Date(end)-+new Date(start))/86400000)+1;
   const priorEnd=new Date(start+'T12:00:00Z');priorEnd.setUTCDate(priorEnd.getUTCDate()-1);

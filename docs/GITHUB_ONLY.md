@@ -14,7 +14,7 @@ Render fue pausado y no se activaron planes facturables. El stack FastAPI/Postgr
 
 Se registraron Instagram `cne_colombia`, X `cne_colombia`, TikTok `consejonacionalelectoral` y el enlace compartido de Facebook `https://www.facebook.com/share/1C5Jxh6Ux7/`. Se quitaron parámetros de seguimiento; no se extrajeron publicaciones ni cifras de las páginas web.
 
-Están en `watchlist`, separados de `accounts`. El enlace corto de Facebook no se convierte en un identificador de página inventado; el ID oficial está pendiente. No se ha confirmado si el equipo administra estas cuentas o las consulta como terceros. La vista pública muestra “acceso API pendiente”, no “conectado”. El registro de perfiles no incrementa el número de cuentas con métricas disponibles.
+Están en `watchlist`, separados de `accounts`. El enlace corto de Facebook no se convierte en un identificador de página inventado; el ID oficial está pendiente. El equipo confirmó que administra las cuatro cuentas. La vista pública muestra “acceso API pendiente”, no “conectado”. El registro de perfiles no incrementa el número de cuentas con métricas disponibles. El foco vigente son comentarios y respuestas de la audiencia; ver `AUDIENCE_LISTENING.md`.
 
 Para terceros, el acceso depende del producto aprobado: por ejemplo, TikTok Display requiere un usuario que autoriza; Research tiene elegibilidad y credenciales distintas. X documenta lectura de usuarios mediante bearer autorizado. Meta requiere verificar permisos y funciones aplicables; la documentación devolvió 429 durante la revisión. No se presume acceso universal por ser perfiles públicos.
 

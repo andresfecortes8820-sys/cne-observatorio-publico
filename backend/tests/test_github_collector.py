@@ -63,3 +63,17 @@ def test_public_profile_is_not_converted_into_api_authorization():
 def test_watchlist_rejects_non_official_hosts():
     import pytest
     with pytest.raises(ValueError):collector.public_watchlist({'watchlist':[{'platform':'x','profile_url':'https://attacker.example/x'}]})
+
+def test_team_ownership_does_not_create_comment_authorization():
+    config={'accounts':[],'watchlist':[{'platform':'x','profile_url':'https://x.com/example','ownership':'team_managed'}]}
+    result=asyncio.run(collector.collect(config,{},False))
+    assert result['watchlist'][0]['access_mode']=='owned_pending_authorization'
+    opinions=asyncio.run(collector.collect_opinions(config,result,{}))
+    assert opinions['opinions']==[] and len(opinions['opinion_sources'])==4
+
+def test_opinion_collection_requires_separate_enable_flag(monkeypatch):
+    monkeypatch.delenv('LISTENING_SYNC_ENABLED',raising=False)
+    def never(*a):raise AssertionError('No API call without explicit enable')
+    result=asyncio.run(collector.collect_opinions(CONFIG,{'posts':[]},{},never))
+    assert result['opinions']==[]
+    assert next(s for s in result['opinion_sources'] if s['platform']=='x')['status']=='not_enabled'

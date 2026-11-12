@@ -29,6 +29,8 @@ jobs:
         run: python scripts/collect_public.py
         env:
           API_SYNC_ENABLED: ${{ vars.API_SYNC_ENABLED }}
+          LISTENING_SYNC_ENABLED: ${{ vars.LISTENING_SYNC_ENABLED }}
+          META_COMMENTS_VALIDATED: ${{ vars.META_COMMENTS_VALIDATED }}
           META_GRAPH_VERSION: ${{ vars.META_GRAPH_VERSION }}
           FACEBOOK_ACCESS_TOKEN: ${{ secrets.FACEBOOK_ACCESS_TOKEN }}
           INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}

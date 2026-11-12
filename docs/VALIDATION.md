@@ -1,5 +1,9 @@
 # Validación de la entrega
 
+## Revisión de escucha de audiencia
+
+La vista principal distingue comentarios/respuestas de publicaciones del CNE y conserva fuente/contexto. Los adaptadores de escucha se prueban con HTTP simulado: exclusión de comentarios propios, contenido oculto y visibilidad no confirmada; no se publican perfiles de autores. Las pruebas del dashboard verifican que un contador de comentarios no se transforme en textos ni en sentimiento ficticio. La lectura real sigue pendiente de credenciales y permisos; TikTok necesita un producto específico distinto de Display. El equipo confirmó que administra las cuatro cuentas.
+
 ## Revisión GitHub Pages
 
 - 41 pruebas Python aprobadas, incluidas aprobación explícita, ausencia de credenciales, saneamiento de métricas/URLs, retirada de cuentas y cuotas del recolector.
