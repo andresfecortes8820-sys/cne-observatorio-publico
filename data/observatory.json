@@ -1,13 +1,1 @@
-{
-  "version": 1,
-  "generated_at": null,
-  "accounts": [],
-  "posts": [],
-  "sources": [
-    {"platform":"facebook","status":"not_configured"},
-    {"platform":"instagram","status":"not_configured"},
-    {"platform":"x","status":"not_configured"},
-    {"platform":"tiktok","status":"not_configured"}
-  ],
-  "truncated": false
-}
+{"version":1,"generated_at":"2026-11-12T20:59:17.743964+00:00","accounts":[],"posts":[],"sources":[{"platform":"facebook","status":"not_configured","last_attempt":"2026-11-12T20:59:17.743964+00:00"},{"platform":"instagram","status":"not_configured","last_attempt":"2026-11-12T20:59:17.743964+00:00"},{"platform":"x","status":"not_configured","last_attempt":"2026-11-12T20:59:17.743964+00:00"},{"platform":"tiktok","status":"not_configured","last_attempt":"2026-11-12T20:59:17.743964+00:00"}],"truncated":false}
