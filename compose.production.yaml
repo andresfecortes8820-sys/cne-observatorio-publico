@@ -1,0 +1,92 @@
+# Standalone production stack. Do not combine with the development compose file.
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: social
+      POSTGRES_DB: social
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?required}
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U social]
+      interval: 5s
+      retries: 20
+    restart: unless-stopped
+    networks: [data]
+  redis:
+    image: redis:7-alpine
+    command: [redis-server, --appendonly, 'yes', --maxmemory, 256mb, --maxmemory-policy, noeviction]
+    volumes: [redisdata:/data]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+    networks: [data]
+  migrate:
+    build: ./backend
+    env_file: .env
+    command: [alembic, upgrade, head]
+    depends_on:
+      db: {condition: service_healthy}
+    networks: [data]
+  api:
+    build: ./backend
+    env_file: .env
+    environment:
+      COOKIE_SECURE: 'true'
+      PRODUCTION: 'true'
+      DEMO_MODE: 'false'
+    command: [uvicorn, app.main:app, --host, 0.0.0.0, --port, '8000', --workers, '2', --proxy-headers, --forwarded-allow-ips, '*', --no-access-log]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+    restart: unless-stopped
+    networks: [edge, data]
+  worker:
+    build: ./backend
+    env_file: .env
+    command: [celery, -A, app.tasks.celery, worker, --loglevel=warning, --concurrency=2]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+    restart: unless-stopped
+    networks: [data, outbound]
+  scheduler:
+    build: ./backend
+    env_file: .env
+    command: [celery, -A, app.tasks.celery, beat, --loglevel=warning, --schedule=/tmp/celerybeat]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+    restart: unless-stopped
+    networks: [data]
+  web:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: /api
+    restart: unless-stopped
+    networks: [edge]
+  gateway:
+    image: caddy:2-alpine
+    environment:
+      PUBLIC_DOMAIN: ${PUBLIC_DOMAIN:?required}
+    ports: ['80:80', '443:443', '443:443/udp']
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+      - caddyconfig:/config
+    depends_on: [web, api]
+    restart: unless-stopped
+    networks: [edge]
+volumes:
+  pgdata:
+  redisdata:
+  caddydata:
+  caddyconfig:
+networks:
+  edge:
+  data:
+    internal: true
+  outbound:
