@@ -52,3 +52,14 @@ def test_provider_failures_are_sanitized_and_respect_cooldown(monkeypatch):
     assert status['status']=='rate_limited' and 'retry_at' in status
     def never(*a):raise AssertionError('Cooldown should prevent another request')
     asyncio.run(collector.collect(CONFIG,result,True,never))
+
+def test_public_profile_is_not_converted_into_api_authorization():
+    config={'accounts':[],'watchlist':[{'platform':'x','name':'TEST TARGET','handle':'example','profile_url':'https://x.com/example?s=tracking'}]}
+    result=asyncio.run(collector.collect(config,{},False))
+    assert result['accounts']==[] and result['posts']==[]
+    assert result['watchlist'][0]['profile_url']=='https://x.com/example'
+    assert next(s for s in result['sources'] if s['platform']=='x')['status']=='api_access_pending'
+
+def test_watchlist_rejects_non_official_hosts():
+    import pytest
+    with pytest.raises(ValueError):collector.public_watchlist({'watchlist':[{'platform':'x','profile_url':'https://attacker.example/x'}]})

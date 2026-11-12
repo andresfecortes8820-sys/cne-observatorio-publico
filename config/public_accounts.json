@@ -1,4 +1,10 @@
 {
   "accounts": [],
+  "watchlist": [
+    {"platform":"instagram","name":"CNE Colombia · Instagram","handle":"cne_colombia","profile_url":"https://www.instagram.com/cne_colombia/"},
+    {"platform":"facebook","name":"CNE Colombia · Facebook","handle":null,"profile_url":"https://www.facebook.com/share/1C5Jxh6Ux7/"},
+    {"platform":"x","name":"CNE Colombia · X","handle":"cne_colombia","profile_url":"https://x.com/cne_colombia"},
+    {"platform":"tiktok","name":"Consejo Nacional Electoral · TikTok","handle":"consejonacionalelectoral","profile_url":"https://www.tiktok.com/@consejonacionalelectoral"}
+  ],
   "note": "Agrega solo cuentas cuya consulta API y publicación estén autorizadas. Consulta docs/GITHUB_ONLY.md. No incluyas tokens aquí."
 }

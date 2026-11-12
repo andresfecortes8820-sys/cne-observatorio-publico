@@ -55,9 +55,21 @@ def approved_accounts(config):
         result.append({'id':identity(platform+':'+external),'external_id':external,'account':str(c.get('name',external))[:180],'name':str(c.get('name',external))[:180],'platform':platform,'category':str(c.get('category','Institución'))[:80],'interval_minutes':interval})
     return result
 
+def public_watchlist(config):
+    result=[];seen=set()
+    for item in config.get('watchlist',[]):
+        platform=item.get('platform')
+        if platform not in PLATFORMS:raise ValueError('invalid_watchlist_platform')
+        url=original_url(str(item.get('profile_url','')),platform)
+        if not url:raise ValueError('invalid_watchlist_url')
+        if (platform,url) in seen:continue
+        seen.add((platform,url))
+        result.append({'platform':platform,'name':str(item.get('name',platform))[:180],'handle':str(item['handle'])[:120] if item.get('handle') else None,'profile_url':url,'access_mode':'public_interest','api_status':'api_access_pending','verification':'provided_by_user'})
+    return result[:200]
+
 async def collect(config,previous,enabled=None,make_connector=connector):
     now=datetime.now(timezone.utc);captured=now.isoformat();since=now-timedelta(days=90)
-    approved=approved_accounts(config);ids={c['id'] for c in approved}
+    approved=approved_accounts(config);ids={c['id'] for c in approved};watchlist=public_watchlist(config)
     existing={p['id']:p for p in previous.get('posts',[]) if p['account_id'] in ids and datetime.fromisoformat(p['published_at'])>=since}
     old_accounts={a['id']:a for a in previous.get('accounts',[])}
     old_sources={s['platform']:s for s in previous.get('sources',[])}
@@ -103,9 +115,9 @@ async def collect(config,previous,enabled=None,make_connector=connector):
             finally:await adapter.close()
         sources.append(status);accounts.append(public)
     for platform in PLATFORMS:
-        if platform not in {c['platform'] for c in approved}:sources.append({'platform':platform,'status':'not_configured','last_attempt':captured})
+        if platform not in {c['platform'] for c in approved}:sources.append({'platform':platform,'status':'api_access_pending' if any(w['platform']==platform for w in watchlist) else 'not_configured','last_attempt':captured})
     data=sorted(existing.values(),key=lambda p:(p['published_at'],p['id']),reverse=True)
-    return {'version':1,'generated_at':captured,'accounts':accounts,'posts':data[:MAX_POSTS],'sources':sources,'truncated':limited or len(data)>MAX_POSTS}
+    return {'version':1,'generated_at':captured,'accounts':accounts,'watchlist':watchlist,'posts':data[:MAX_POSTS],'sources':sources,'truncated':limited or len(data)>MAX_POSTS}
 
 def main():
     config=json.loads((ROOT/'config/public_accounts.json').read_text(encoding='utf-8'))

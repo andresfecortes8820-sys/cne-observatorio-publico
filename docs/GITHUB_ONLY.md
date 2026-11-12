@@ -10,6 +10,16 @@ Render fue pausado y no se activaron planes facturables. El stack FastAPI/Postgr
 
 ## Datos reales
 
+### Perfiles de interés suministrados
+
+Se registraron Instagram `cne_colombia`, X `cne_colombia`, TikTok `consejonacionalelectoral` y el enlace compartido de Facebook `https://www.facebook.com/share/1C5Jxh6Ux7/`. Se quitaron parámetros de seguimiento; no se extrajeron publicaciones ni cifras de las páginas web.
+
+Están en `watchlist`, separados de `accounts`. El enlace corto de Facebook no se convierte en un identificador de página inventado; el ID oficial está pendiente. No se ha confirmado si el equipo administra estas cuentas o las consulta como terceros. La vista pública muestra “acceso API pendiente”, no “conectado”. El registro de perfiles no incrementa el número de cuentas con métricas disponibles.
+
+Para terceros, el acceso depende del producto aprobado: por ejemplo, TikTok Display requiere un usuario que autoriza; Research tiene elegibilidad y credenciales distintas. X documenta lectura de usuarios mediante bearer autorizado. Meta requiere verificar permisos y funciones aplicables; la documentación devolvió 429 durante la revisión. No se presume acceso universal por ser perfiles públicos.
+
+Referencias: [X User Lookup](https://docs.x.com/x-api/users/get-user-by-username), [TikTok Display](https://developers.tiktok.com/docs/en/display-api-get-started), [TikTok Research](https://developers.tiktok.com/docs/en/research-api-get-started).
+
 No se proporcionaron credenciales de Meta, X o TikTok. `config/public_accounts.json` empieza vacío y `data/observatory.json` no contiene publicaciones ni métricas de demostración. Publicar la interfaz no equivale a tener acceso API.
 
 Para habilitar una cuenta:
