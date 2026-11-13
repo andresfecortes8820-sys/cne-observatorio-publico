@@ -9,27 +9,17 @@
       "ownership": "team_managed"
     },
     {
-      "platform": "facebook",
-      "name": "CNE Colombia · Facebook",
-      "handle": null,
-      "profile_url": "https://www.facebook.com/share/1C5Jxh6Ux7/",
-      "ownership": "team_managed"
-    },
-    {
       "platform": "x",
       "name": "CNE Colombia · X",
       "handle": "cne_colombia",
       "profile_url": "https://x.com/cne_colombia",
       "ownership": "team_managed"
-    },
-    {
-      "platform": "tiktok",
-      "name": "Consejo Nacional Electoral · TikTok",
-      "handle": "consejonacionalelectoral",
-      "profile_url": "https://www.tiktok.com/@consejonacionalelectoral",
-      "ownership": "team_managed"
     }
   ],
   "note": "Agrega solo cuentas cuya consulta API y publicación estén autorizadas. Consulta docs/GITHUB_ONLY.md. No incluyas tokens aquí.",
-  "listening_focus": "Comentarios, respuestas y menciones dirigidos a las cuatro cuentas administradas por el equipo; no solo métricas de publicaciones propias."
+  "listening_focus": "Comentarios y respuestas públicos dirigidos a las cuentas de X e Instagram administradas por el equipo.",
+  "public_platforms": [
+    "instagram",
+    "x"
+  ]
 }

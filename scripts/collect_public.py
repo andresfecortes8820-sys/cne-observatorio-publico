@@ -164,12 +164,38 @@ async def collect_opinions(config,snapshot,previous,make_connector=listening_con
 def iso_date(value):
     return datetime.fromisoformat(value.replace('Z','+00:00'))
 
+def merge_browser_observations(result,config):
+    # Curated observations remain immutable: a workflow run never renews their capture time.
+    platforms=set(config.get('public_platforms',PLATFORMS))
+    path=ROOT/'data/public_observations.json'
+    observed=json.loads(path.read_text(encoding='utf-8')) if path.exists() else {}
+    known={a['id'] for a in result['accounts']}
+    for account in observed.get('accounts',[]):
+        if account['platform'] in platforms and account['id'] not in known:
+            result['accounts'].append(account);known.add(account['id'])
+    seen={o['id'] for o in result['opinions']}
+    for item in observed.get('opinions',[]):
+        if item['platform'] in platforms and item['id'] not in seen and item['account_id'] in known:
+            result['opinions'].append(item);seen.add(item['id'])
+    observed_platforms={o['platform'] for o in observed.get('opinions',[])}
+    for key in ('sources','opinion_sources'):
+        result[key]=[s for s in result[key] if s['platform'] in platforms]
+        if key=='opinion_sources':
+            for status in result[key]:
+                if status['platform'] in observed_platforms and status['status']!='available':
+                    status.update(status='browser_sample',last_attempt=observed['captured_at'])
+    result['browser_methodology']=observed.get('method')
+    result['opinions_truncated']=bool(observed.get('opinions')) or result['opinions_truncated']
+    return result
+
+
 def main():
     config=json.loads((ROOT/'config/public_accounts.json').read_text(encoding='utf-8'))
     target=ROOT/'data/observatory.json'
     previous=json.loads(target.read_text(encoding='utf-8')) if target.exists() else {}
     result=asyncio.run(collect(config,previous))
     result.update(asyncio.run(collect_opinions(config,result,previous)))
+    result=merge_browser_observations(result,config)
     target.parent.mkdir(exist_ok=True)
     target.write_text(json.dumps(result,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8')
     print('Captura pública procesada: '+str(len(result['posts']))+' publicaciones. No se imprimen credenciales.')

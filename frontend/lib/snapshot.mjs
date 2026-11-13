@@ -1,5 +1,5 @@
 // Browser-only read model for GitHub Pages. No social API calls or credentials.
-export const METHODOLOGY='Datos recopilados por GitHub Actions mediante API oficiales y publicados como capturas estáticas. Fechas de publicación en America/Bogota; cada métrica conserva su captura. No representa toda la conversación pública. La programación puede retrasarse y las métricas ausentes no equivalen a cero.';
+export const METHODOLOGY='Comentarios públicos observados en navegador y capturas API cuando estén autorizadas. Cada fuente identifica su método; la muestra de navegador es puntual y no se actualiza automáticamente. Fechas de publicación en America/Bogota; cada métrica conserva su captura. No representa toda la conversación pública. La programación puede retrasarse y las métricas ausentes no equivalen a cero.';
 const day=s=>new Date(s).toLocaleDateString('en-CA',{timeZone:'America/Bogota'});
 function aggregate(posts){
  const days=new Map(),platforms=new Map(),measured=posts.filter(p=>p.interactions!==null);
@@ -32,17 +32,17 @@ export function querySnapshot(snapshot,path,now=new Date()){
   const priorStart=new Date(start+'T12:00:00Z');priorStart.setUTCDate(priorStart.getUTCDate()-duration);
   const previous=all.filter(p=>day(p.published_at)>=priorStart.toISOString().slice(0,10)&&day(p.published_at)<=priorEnd.toISOString().slice(0,10));
   const captures=filtered.map(p=>p.captured_at).filter(Boolean).sort();const summary=aggregate(filtered);
-  return {...summary,previous:aggregate(previous),followers:selectedAccounts,watchlist:snapshot.watchlist||[],top_posts:[...filtered].sort((a,b)=>(b.interactions??-1)-(a.interactions??-1)).slice(0,5),possibly_truncated:!!snapshot.truncated,previous_truncated:!!snapshot.truncated,limit:2000,start,end,timezone:'America/Bogota',last_capture:captures.at(-1)||null,generated_at:snapshot.generated_at,cache_seconds:600,methodology:METHODOLOGY,source_status:snapshot.sources,coverage:{published_accounts:selectedAccounts.length,platforms_with_data:[...new Set(filtered.map(p=>p.platform))],measured_posts:summary.measured_posts,observed_posts:filtered.length,complete:!snapshot.truncated,status:snapshot.truncated?'partial':filtered.length?'available':'no_authorized_data'},demo:false};
+  return {...summary,previous:aggregate(previous),followers:selectedAccounts,watchlist:snapshot.watchlist||[],top_posts:[...filtered].sort((a,b)=>(b.interactions??-1)-(a.interactions??-1)).slice(0,5),possibly_truncated:!!snapshot.truncated,previous_truncated:!!snapshot.truncated,limit:2000,start,end,timezone:'America/Bogota',last_capture:captures.at(-1)||null,generated_at:snapshot.generated_at,cache_seconds:600,methodology:snapshot.browser_methodology||METHODOLOGY,source_status:snapshot.sources,coverage:{published_accounts:selectedAccounts.length,platforms_with_data:[...new Set(filtered.map(p=>p.platform))],measured_posts:summary.measured_posts,observed_posts:filtered.length,complete:!snapshot.truncated,status:snapshot.truncated?'partial':filtered.length?'available':'no_authorized_data'},demo:false};
  }
  if(url.pathname==='/posts'){
   const page=Number(q.get('page')||1),size=Number(q.get('page_size')||25);
   if(!Number.isInteger(page)||page<1||page>200||!Number.isInteger(size)||size<1||size>100)throw new Error('Paginación inválida');
-  const offset=(page-1)*size;return {items:filtered.slice(offset,offset+size),page,page_size:size,has_more:offset+size<filtered.length,methodology:METHODOLOGY};
+  const offset=(page-1)*size;return {items:filtered.slice(offset,offset+size),page,page_size:size,has_more:offset+size<filtered.length,methodology:snapshot.browser_methodology||METHODOLOGY};
  }
  const id=Number(url.pathname.split('/').at(-1)),post=snapshot.posts.find(p=>p.id===id);
  if(!post)throw new Error('Publicación no disponible');
  const page=Number(q.get('page')||1);if(!Number.isInteger(page)||page<1||page>200)throw new Error('Página inválida');
- const history=[...(post.history||[])].reverse();return {...post,history:history.slice((page-1)*50,page*50),page,has_more:page*50<history.length,methodology:METHODOLOGY};
+ const history=[...(post.history||[])].reverse();return {...post,history:history.slice((page-1)*50,page*50),page,has_more:page*50<history.length,methodology:snapshot.browser_methodology||METHODOLOGY};
 }
 let cached=null,loaded=0;
 export async function readSnapshot(path,base='',signal){
